@@ -3,13 +3,14 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>Wreak</title>
+<title>Wreak</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <meta name="description" content="Gilbert, Ryan, Herbert, Lord Balo" />
 <style>
   :root {
-    --background:#1a1620; --foreground:#f1ece5; --card:#241f2a;
-    --muted:#9a90a5; --border:rgba(255,255,255,0.14);
-    --destructive:#e2554f; --primary:#e2a34f; --accent:#8ff0c4;
+    --background:#141210; --foreground:#e9e2d1; --card:#211c15;
+    --muted:#8f8371; --border:rgba(233,226,209,0.16);
+    --destructive:#b23a30; --primary:#c99a35; --accent:#5c7a58;
+    --ink:#0d0b09;
   }
   * { box-sizing: border-box; }
   html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#000; color:var(--foreground);
@@ -21,43 +22,48 @@
   canvas { position:absolute; inset:0; width:100%; height:100%; display:block; image-rendering: pixelated; object-fit: contain;
     -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
   .hud-top { position:absolute; top:0; left:0; right:0; padding:14px 16px; display:flex; align-items:flex-start;
-    justify-content:space-between; pointer-events:none; font-size:10px; letter-spacing:.18em; text-transform:uppercase;
-    text-shadow:0 1px 3px rgba(0,0,0,.9); }
-  .vitals { width:min(38vw,260px); }
-  .vitals-row { display:flex; justify-content:space-between; font-size:9px; letter-spacing:.18em; color:var(--muted); margin-bottom:4px; }
-  .bar-hp { height:6px; border-radius:99px; background:rgba(255,255,255,.12); overflow:hidden; }
-  .bar-hp-inner { height:100%; border-radius:99px; background:linear-gradient(90deg,#e2554f,#ff8d6a); transition:width .15s ease; }
-  .bar-rage { height:3px; margin-top:4px; border-radius:99px; background:rgba(255,255,255,.1); overflow:hidden; }
-  .bar-rage-inner { height:100%; border-radius:99px; background:var(--primary); transition:width .15s ease; }
-  .bar-stamina { height:3px; margin-top:4px; border-radius:99px; background:rgba(255,255,255,.1); overflow:hidden; }
-  .bar-stamina-inner { height:100%; border-radius:99px; background:var(--accent); transition:width .1s ease; }
-  .boost-tag { display:none; margin-top:6px; padding:2px 7px; border-radius:99px; background:rgba(143,240,196,.22);
-    color:var(--accent); font-size:7px; letter-spacing:.18em; }
-  .floor-label { margin-top:8px; font-size:9px; color:var(--muted); letter-spacing:.24em; }
-  .enemies { text-align:right; color:var(--muted); font-size:9px; letter-spacing:.24em; }
-  .enemies .num { color:var(--destructive); font-size:18px; letter-spacing:0; margin-top:2px; }
+    justify-content:space-between; pointer-events:none; font-size:8px; letter-spacing:.08em; text-transform:uppercase;
+    text-shadow:2px 2px 0 rgba(0,0,0,.95); image-rendering:pixelated; }
+  .vitals { width:min(44vw,330px); display:grid; grid-template-columns:62px minmax(112px,1fr); gap:12px; align-items:start;
+    background:rgba(13,11,9,.88); border:2px solid #3d3730; border-radius:0; padding:8px 10px 9px 8px;
+    clip-path:polygon(4px 0,calc(100% - 4px) 0,calc(100% - 4px) 2px,100% 2px,100% calc(100% - 4px),calc(100% - 4px) calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,4px calc(100% - 4px),0 calc(100% - 4px),0 4px,4px 4px);
+    box-shadow:inset 2px 2px 0 rgba(233,226,209,.08),4px 4px 0 rgba(0,0,0,.55); }
+  .vitals-copy { min-width:0; }
+  .vitals-row { display:flex; justify-content:space-between; font-size:7px; letter-spacing:.08em; color:#a49a89; margin:1px 0 6px; }
+  .vitals-row span:first-child { color:#c6463f; }
+  .blood-drop { width:58px; height:72px; overflow:visible; filter:drop-shadow(3px 3px 0 rgba(0,0,0,.8)); shape-rendering:crispEdges; }
+  .blood-drop .blood-level,.blood-drop .blood-surface { transition:y .18s steps(4),height .18s steps(4),cy .18s steps(4); }
+  .meter-label { display:flex; justify-content:space-between; margin-top:5px; color:#8f8371; font-size:6px; line-height:1; letter-spacing:.08em; }
+  .meter-label.rage-label { color:#c57b31; }
+  .meter-label.stamina-label { color:#668662; }
+  .bar-rage,.bar-stamina { height:9px; margin-top:3px; border-radius:0; padding:2px; background:#090806; border:2px solid #3d3730; overflow:hidden; }
+  .bar-rage-inner,.bar-stamina-inner { height:100%; border-radius:0; }
+  .bar-rage-inner { background:var(--primary); transition:width .15s ease; }
+  .bar-stamina { height:9px; }
+  .bar-stamina-inner { height:100%; background:var(--accent); transition:width .1s ease; }
+  .boost-tag { display:none; margin-top:6px; padding:4px 6px; border:2px solid #6d4d24; border-radius:0; background:#c99a35;
+    color:var(--ink); font-weight:700; font-size:6px; letter-spacing:.08em; }
+  .floor-label { margin-top:7px; padding-top:6px; border-top:2px solid #302b25; font-size:7px; color:#b8ae9c; letter-spacing:.08em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .floor-label::before { content:"FLOOR  "; color:#696158; }
+  .enemies { min-width:92px; text-align:right; color:#8f8371; font-size:7px; letter-spacing:.1em; background:rgba(13,11,9,.88);
+    border:2px solid #3d3730; border-radius:0; padding:9px 10px 8px;
+    clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px,4px 4px);
+    box-shadow:inset 2px 2px 0 rgba(233,226,209,.07),4px 4px 0 rgba(0,0,0,.55); }
+  .enemies > div:first-child::before { content:"■ "; color:#9b2727; }
+  .enemies .num { color:#d24a43; font-size:17px; font-weight:700; letter-spacing:0; margin-top:6px; }
   .bossbar { position:absolute; top:18px; left:50%; transform:translateX(-50%); width:min(60vw,420px); pointer-events:none; }
-  .bossbar .name { text-align:center; font-size:9px; letter-spacing:.32em; text-transform:uppercase; color:var(--destructive); margin-bottom:4px; }
-  .bar-outer { height:5px; border-radius:99px; background:rgba(255,255,255,.12); overflow:hidden; }
-  .bar-inner { height:100%; border-radius:99px; background:var(--destructive); transition:width .12s; }
+  .bossbar .name { text-align:center; font-size:7px; letter-spacing:.1em; text-transform:uppercase; color:#cfc5b4;
+    background:var(--ink); border:2px solid #3d3730; padding:5px 10px; margin:0 auto 4px; width:max-content; max-width:100%; }
+  .bar-outer { height:12px; border-radius:0; padding:2px; background:var(--ink); border:2px solid #494039; overflow:hidden; }
+  .bar-inner { height:100%; border-radius:0; background:var(--destructive); transition:width .12s; }
   .hud-bottom { position:absolute; left:16px; bottom:16px; }
   .weapon-panel { display:flex; align-items:center; gap:6px; margin-bottom:6px; font-size:8px; letter-spacing:.14em;
-    text-transform:uppercase; color:var(--foreground); text-shadow:0 1px 3px rgba(0,0,0,.9); }
+    text-transform:uppercase; color:var(--foreground); background:rgba(13,11,9,.55); border:1px solid var(--border);
+    padding:4px 8px; }
   .weapon-panel .wname { min-width:70px; }
-  .bar-durability { width:56px; height:4px; border-radius:99px; background:rgba(255,255,255,.14); overflow:hidden; }
-  .bar-durability-inner { height:100%; border-radius:99px; background:#e2a34f; transition:width .15s ease; }
-  .btn-grid { display:flex; flex-wrap:wrap; gap:6px; }
-  .action-btn { display:flex; align-items:center; gap:6px; border:0; background:rgba(255,255,255,.07); backdrop-filter:blur(6px);
-    padding:7px 10px; border-radius:99px; font-family:inherit; font-size:8px; text-transform:uppercase; letter-spacing:.14em;
-    color:var(--foreground); cursor:pointer; user-select:none; touch-action:none; -webkit-user-select:none; transition:background .15s, opacity .15s; }
-  .action-btn:active, .action-btn.held { background:rgba(226,163,79,.32); }
-  .action-btn .key { color:var(--muted); }
-  .action-btn.on-cooldown { opacity:.35; pointer-events:none; }
-  .action-btn #heavy-cd { color:var(--primary); font-weight:700; }
-  .movepad { position:absolute; right:16px; bottom:16px; display:flex; gap:6px; }
-  .pad-btn { width:40px; height:40px; border-radius:99px; border:0; background:rgba(255,255,255,.07); backdrop-filter:blur(6px);
-    color:var(--foreground); font-size:15px; touch-action:none; user-select:none; transition:background .15s; }
-  .pad-btn:active, .pad-btn.held { background:rgba(226,163,79,.32); }
+  .bar-durability { width:56px; height:5px; border-radius:2px; background:var(--ink); border:1px solid rgba(0,0,0,.5); overflow:hidden; }
+  .bar-durability-inner { height:100%; background:var(--primary); transition:width .15s ease; }
+
 
   .mobile-gamepad, .fullscreen-btn { display:none; }
   .mobile-gamepad { position:absolute; z-index:20; pointer-events:none; }
@@ -93,7 +99,7 @@
   .sys-btn.active .sys-label { color:#ffd98a; }
 
   @media (pointer:coarse), (max-width:900px) {
-    .hud-bottom, .movepad { display:none; }
+    .hud-bottom { display:none; }
     .mobile-gamepad { display:block; }
     .fullscreen-btn { display:flex; top:max(10px,env(safe-area-inset-top)); right:max(10px,env(safe-area-inset-right)); }
     .hud-top { padding:max(10px,env(safe-area-inset-top)) max(58px,calc(env(safe-area-inset-right) + 50px)) 10px max(10px,env(safe-area-inset-left)); }
@@ -115,7 +121,7 @@
     .hud-top { height:43%; padding-top:max(8px,env(safe-area-inset-top)); }
     .bossbar { top:12px; width:44vw; }
     .mobile-gamepad { left:0; right:0; top:43%; bottom:0; background:linear-gradient(145deg,#8e16f4,#5d00c6); border-top:1px solid rgba(255,255,255,.28); }
-    .mobile-gamepad::before { content:"IRON ENFORCERS"; position:absolute; top:18px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,.82); font-size:9px; letter-spacing:.2em; white-space:nowrap; }
+    .mobile-gamepad::before { content:"Bhert Gaming"; position:absolute; top:18px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,.82); font-size:9px; letter-spacing:.2em; white-space:nowrap; }
     .dpad { left:max(22px,env(safe-area-inset-left)); top:27%; transform:scale(.9); transform-origin:left top; }
     .face-buttons { right:max(18px,env(safe-area-inset-right)); top:22%; transform:scale(.9); transform-origin:right top; }
     .utility-buttons { display:block; }
@@ -128,6 +134,75 @@
     .dpad { transform:scale(.72); }
     .face-buttons { transform:scale(.7); }
   }
+
+  /* Battle-worn controls treatment */
+  .weapon-panel { border:1px solid var(--border); border-radius:16px 22px 15px 19px; padding:6px 10px; background:rgba(13,11,9,.62); }
+  .bar-durability { border-radius:999px; }
+  .bar-durability-inner { border-radius:999px; }
+  .dpad-btn { border-color:rgba(233,226,209,.3); background:linear-gradient(#4b3b2d,#21170f); color:#e9e2d1; box-shadow:inset 0 2px 0 rgba(255,255,255,.1),0 3px 0 #0d0906; }
+  .dpad-btn.held { background:#6d4b34; box-shadow:inset 0 2px 5px rgba(0,0,0,.6),0 1px 0 #0d0906; }
+  .dpad-up { border-radius:22px 22px 8px 8px; } .dpad-left { border-radius:22px 8px 8px 22px; }
+  .dpad-right { border-radius:8px 22px 22px 8px; } .dpad-down { border-radius:8px 8px 22px 22px; }
+  .dpad-center { background:#2b1e16; border-radius:12px; }
+  .face-btn,.utility-btn { border-color:rgba(233,226,209,.48); background:radial-gradient(circle at 36% 28%,#8a5637,#3b2018 68%,#160d09); color:#f0d78c; box-shadow:inset 0 2px 0 rgba(255,255,255,.16),0 4px 0 #120906; }
+  .face-btn.held,.utility-btn.held { background:#a26342; color:#fff1cc; }
+  .fullscreen-btn { border-radius:50%; background:rgba(33,24,17,.82); color:#e9e2d1; }
+  @media (pointer:coarse) and (orientation:portrait), (max-width:900px) and (orientation:portrait) {
+    .stage { background:linear-gradient(to bottom,#050307 0 43%,#21140e 43% 100%); }
+    .mobile-gamepad { background:radial-gradient(ellipse at 50% 0,#4c3323,#1a100c 72%); border-top-color:rgba(201,154,53,.38); }
+    .mobile-gamepad::before { color:rgba(233,226,209,.74); }
+  }
+
+  /* Pixel HUD treatment — control geometry intentionally unchanged */
+  :root {
+    --background:#0d0c0a; --foreground:#f2dfb3; --card:#17130f;
+    --muted:#a89a78; --border:#695c42; --destructive:#c43b32;
+    --primary:#e3aa36; --accent:#65a563; --ink:#080706;
+    --pixel-hi:#a99162; --pixel-mid:#443a29; --pixel-low:#211c15;
+  }
+  html,body { font-family:"Press Start 2P",ui-monospace,"SF Mono",Menlo,monospace; }
+  .hud-top { padding:12px 14px; font-size:7px; letter-spacing:0; text-shadow:2px 2px 0 #080706; }
+  .vitals,.enemies {
+    background:var(--card); border:0; outline:2px solid var(--ink);
+    box-shadow:inset 0 0 0 2px var(--pixel-mid),inset 0 0 0 4px var(--pixel-low),4px 4px 0 var(--ink);
+    clip-path:polygon(4px 0,calc(100% - 4px) 0,calc(100% - 4px) 2px,100% 2px,100% calc(100% - 4px),calc(100% - 4px) calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,4px calc(100% - 4px),0 calc(100% - 4px),0 4px,4px 4px);
+  }
+  .vitals { grid-template-columns:52px minmax(112px,1fr); gap:10px; padding:9px 11px 10px 9px; }
+  .blood-drop { width:48px; height:60px; filter:drop-shadow(2px 0 0 var(--ink)) drop-shadow(-2px 0 0 var(--ink)) drop-shadow(0 2px 0 var(--ink)); }
+  .vitals-row,.meter-label,.floor-label,.enemies { letter-spacing:0; }
+  .vitals-row { color:var(--foreground); font-size:7px; margin:1px 0 7px; }
+  .vitals-row span:first-child { color:#e15a48; }
+  .meter-label { font-size:5px; margin-top:5px; }
+  .bar-rage,.bar-stamina,.bar-outer,.bar-durability {
+    position:relative; border:0; border-radius:0; background:var(--ink); padding:2px;
+    outline:2px solid var(--pixel-mid); box-shadow:2px 2px 0 var(--ink); overflow:hidden;
+  }
+  .bar-rage,.bar-stamina { height:10px; margin-top:4px; }
+  .bar-rage-inner,.bar-stamina-inner,.bar-inner,.bar-durability-inner { border-radius:0; image-rendering:pixelated; }
+  .bar-rage-inner { background:repeating-linear-gradient(90deg,#d68b24 0 6px,#edae35 6px 10px); transition:width .15s steps(6); }
+  .bar-stamina-inner { background:repeating-linear-gradient(90deg,#4f8150 0 6px,#71aa67 6px 10px); transition:width .12s steps(6); }
+  .floor-label { color:var(--foreground); border-top:2px solid var(--pixel-mid); font-size:6px; line-height:1.5; }
+  .floor-label::before { color:var(--primary); }
+  .enemies { min-width:88px; color:var(--muted); padding:10px; }
+  .enemies .num { color:#e35548; font-size:18px; text-shadow:2px 2px 0 #611b18; }
+  .bossbar { top:14px; }
+  .bossbar .name { color:var(--foreground); background:var(--card); border:0; outline:2px solid var(--pixel-mid); box-shadow:2px 2px 0 var(--ink); padding:6px 10px; }
+  .bar-outer { height:12px; }
+  .bar-inner { background:repeating-linear-gradient(90deg,#9b2527 0 8px,#c43b32 8px 12px); transition:width .12s steps(8); }
+  .weapon-panel { border:0; border-radius:0; color:var(--foreground); background:var(--card); padding:7px 9px; outline:2px solid var(--pixel-mid); box-shadow:3px 3px 0 var(--ink); letter-spacing:0; }
+  .weapon-panel { display:block; margin:0; padding:0; border:0; outline:0; box-shadow:none; background:transparent; font-size:inherit; letter-spacing:0; text-transform:none; }
+  .weapon-panel .meter-label.durability-label { color:#c8a24d; }
+  .bar-durability { width:100%; height:9px; margin-top:3px; padding:2px; background:#090806; border:2px solid #3d3730; }
+  .bar-durability-inner { height:100%; background:repeating-linear-gradient(90deg,#c28b2c 0 5px,#e0b24d 5px 8px); transition:width .15s steps(6); }
+  .boost-tag { border:0; border-radius:0; margin-top:7px; padding:5px 8px; background:#f4c243; color:#181004; font-size:8px; font-weight:700; letter-spacing:.14em; text-align:center; text-shadow:0 1px 0 rgba(255,240,200,.55); outline:2px solid var(--ink); box-shadow:2px 2px 0 #7f5516; }
+  .boost-tag::before { content:"\25AE "; color:#7f5516; }
+  .boost-tag::after { content:" \25AE"; color:#7f5516; }
+  @media (pointer:coarse),(max-width:900px) {
+    .hud-top { padding-top:max(10px,env(safe-area-inset-top)); }
+    .vitals { grid-template-columns:42px minmax(100px,1fr); gap:7px; }
+    .blood-drop { width:40px; height:50px; }
+  }
+
 </style>
 </head>
 <body>
@@ -136,12 +211,36 @@
 
     <div class="hud-top">
       <div class="vitals">
-        <div class="vitals-row"><span>Vitals</span><span id="hud-hp-text">100/100</span></div>
-        <div class="bar-hp"><div class="bar-hp-inner" id="hud-hp-bar" style="width:100%"></div></div>
-        <div class="bar-rage"><div class="bar-rage-inner" id="hud-rage-bar" style="width:0%"></div></div>
-        <div class="bar-stamina"><div class="bar-stamina-inner" id="hud-stamina-bar" style="width:100%"></div></div>
-        <div class="boost-tag" id="hud-boost">ADRENALINE RUSH</div>
-        <div class="floor-label"><span id="hud-floor-name">Floor 1</span> · <span id="hud-floor-sub">Cafeteria &amp; Main Hallways</span></div>
+        <svg class="blood-drop" viewBox="0 0 64 80" role="img" aria-label="Health" shape-rendering="crispEdges">
+          <defs>
+            <clipPath id="blood-drop-clip"><path d="M28 4h8v8h6v8h6v8h6v10h6v24h-6v8h-8v6H18v-6h-8v-8H4V38h6V28h6v-8h6v-8h6Z"/></clipPath>
+            <linearGradient id="blood-gradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#e54b4b"/><stop offset=".42" stop-color="#b52332"/><stop offset="1" stop-color="#690f1c"/>
+            </linearGradient>
+          </defs>
+          <path d="M28 2h8v8h6v8h6v8h6v10h6v28h-6v8h-8v6H18v-6h-8v-8H4V36h6V26h6v-8h6v-8h6Z" fill="#080706"/>
+          <path d="M28 6h8v8h6v8h6v8h6v10h4v20h-6v8h-8v4H20v-4h-8v-8H6V40h4V30h6v-8h6v-8h6Z" fill="#d9a45b"/>
+          <path d="M28 10h8v8h6v8h6v8h6v10h2v14h-6v8h-8v2H22v-2h-8v-8H8V44h2V34h6v-8h6v-8h6Z" fill="#2f1b19"/>
+          <g clip-path="url(#blood-drop-clip)">
+            <rect class="blood-level" id="hud-hp-bar" x="4" y="4" width="56" height="72" fill="url(#blood-gradient)"/>
+            <rect class="blood-surface" id="hud-hp-surface" x="10" y="4" width="44" height="4" fill="#f36b68" opacity=".8"/>
+          </g>
+          <path d="M22 24h6v6h-4v8h-4v12h-4V36h2v-8h4Z" fill="#ffb3a2" opacity=".55"/>
+          <path d="M16 58h4v6h8v4h-8v-4h-4Z" fill="#6f101b"/>
+        </svg>
+        <div class="vitals-copy">
+          <div class="vitals-row"><span>Blood</span><span id="hud-hp-text">100/100</span></div>
+          <div class="meter-label rage-label"><span>Rage</span><span>Fury</span></div>
+          <div class="bar-rage"><div class="bar-rage-inner" id="hud-rage-bar" style="width:0%"></div></div>
+          <div class="meter-label stamina-label"><span>Stamina</span><span>Ready</span></div>
+          <div class="bar-stamina"><div class="bar-stamina-inner" id="hud-stamina-bar" style="width:100%"></div></div>
+          <div class="weapon-panel" id="weapon-panel" style="display:none">
+            <div class="meter-label durability-label"><span id="hud-weapon-name">Fists</span><span>Durability</span></div>
+            <div class="bar-durability"><div class="bar-durability-inner" id="hud-weapon-bar" style="width:100%"></div></div>
+          </div>
+          <div class="boost-tag" id="hud-boost">ADRENALINE RUSH</div>
+          <div class="floor-label"><span id="hud-floor-name">Floor 1</span> · <span id="hud-floor-sub">Cafeteria &amp; Main Hallways</span></div>
+        </div>
       </div>
       <div class="enemies">
         <div>Enemies</div>
@@ -152,27 +251,6 @@
     <div class="bossbar" id="bossbar" style="display:none">
       <div class="name" id="boss-name">—</div>
       <div class="bar-outer"><div class="bar-inner" id="boss-hp" style="width:100%"></div></div>
-    </div>
-
-    <div class="hud-bottom">
-      <div class="weapon-panel">
-        <span class="wname" id="hud-weapon-name">Fists</span>
-        <div class="bar-durability"><div class="bar-durability-inner" id="hud-weapon-bar" style="width:100%"></div></div>
-      </div>
-      <div class="btn-grid">
-        <button class="action-btn" data-action="light"><span class="key">LMB</span><span>Light</span></button>
-        <button class="action-btn" data-action="heavy" id="heavy-btn"><span class="key">RMB</span><span>Heavy</span><span id="heavy-cd"></span></button>
-        <button class="action-btn" data-action="block"><span class="key">F</span><span>Block</span></button>
-        <button class="action-btn" data-action="roll"><span class="key">Shift</span><span>Roll</span></button>
-        <button class="action-btn" data-action="grab"><span class="key">E</span><span>Grab/Drop</span></button>
-        <button class="action-btn" data-action="heal" id="heal-btn"><span class="key">H</span><span>2nd Wind</span></button>
-      </div>
-    </div>
-
-    <div class="movepad">
-      <button class="pad-btn" data-action="left">&#8592;</button>
-      <button class="pad-btn" data-action="up">&#8593;</button>
-      <button class="pad-btn" data-action="right">&#8594;</button>
     </div>
 
     <button class="fullscreen-btn" id="fullscreen-btn" type="button" aria-label="Enter fullscreen" title="Fullscreen">
@@ -1527,10 +1605,14 @@ class Game {
 
   overlay(title, sub) {
     const ctx = this.ctx;
-    ctx.fillStyle = "rgba(8,6,10,0.72)"; ctx.fillRect(0, 0, GAME_W, GAME_H);
+    ctx.fillStyle = "rgba(8,7,6,0.82)"; ctx.fillRect(0, 0, GAME_W, GAME_H);
+    ctx.fillStyle = "#080706"; ctx.fillRect(GAME_W / 2 - 128, GAME_H / 2 - 38, 256, 76);
+    ctx.fillStyle = "#443a29"; ctx.fillRect(GAME_W / 2 - 126, GAME_H / 2 - 36, 252, 72);
+    ctx.fillStyle = "#17130f"; ctx.fillRect(GAME_W / 2 - 122, GAME_H / 2 - 32, 244, 64);
+    ctx.fillStyle = "#a99162"; ctx.fillRect(GAME_W / 2 - 118, GAME_H / 2 - 28, 236, 2);
     ctx.textAlign = "center";
-    ctx.fillStyle = "#ffd166"; ctx.font = "16px monospace"; ctx.fillText(title, GAME_W / 2, GAME_H / 2 - 4);
-    ctx.fillStyle = "#cfc7d6"; ctx.font = "8px monospace"; ctx.fillText(sub, GAME_W / 2, GAME_H / 2 + 14);
+    ctx.fillStyle = "#e3aa36"; ctx.font = '12px "Press Start 2P", monospace'; ctx.fillText(title.toUpperCase(), GAME_W / 2, GAME_H / 2 - 4);
+    ctx.fillStyle = "#f2dfb3"; ctx.font = '6px "Press Start 2P", monospace'; ctx.fillText(sub.toUpperCase(), GAME_W / 2, GAME_H / 2 + 15);
   }
 
   drawProp(p, pal) {
@@ -2028,27 +2110,31 @@ class Game {
     const hudEnemies = document.getElementById("hud-enemies");
     const hudHpText = document.getElementById("hud-hp-text");
     const hudHpBar = document.getElementById("hud-hp-bar");
+    const hudHpSurface = document.getElementById("hud-hp-surface");
     const hudRageBar = document.getElementById("hud-rage-bar");
     const hudStaminaBar = document.getElementById("hud-stamina-bar");
     const hudBoost = document.getElementById("hud-boost");
     const hudWeaponName = document.getElementById("hud-weapon-name");
     const hudWeaponBar = document.getElementById("hud-weapon-bar");
+    const weaponPanel = document.getElementById("weapon-panel");
     const bossbar = document.getElementById("bossbar");
     const bossName = document.getElementById("boss-name");
     const bossHp = document.getElementById("boss-hp");
-    const heavyBtn = document.getElementById("heavy-btn");
-    const heavyCd = document.getElementById("heavy-cd");
-    const healBtn = document.getElementById("heal-btn");
 
     game.onHud = (h) => {
       hudFloorName.textContent = h.floorName;
       hudFloorSub.textContent = h.floorSubtitle;
       hudEnemies.textContent = h.enemiesLeft;
       hudHpText.textContent = `${h.hp}/${h.maxHp}`;
-      hudHpBar.style.width = `${(h.hp / h.maxHp) * 100}%`;
+      const healthRatio = Math.max(0, Math.min(1, h.hp / h.maxHp));
+      const bloodTop = 76 - healthRatio * 72;
+      hudHpBar.setAttribute("y", bloodTop);
+      hudHpBar.setAttribute("height", healthRatio * 72);
+      hudHpSurface.setAttribute("cy", bloodTop);
       hudRageBar.style.width = `${h.rage}%`;
       hudStaminaBar.style.width = `${(h.stamina / h.maxStamina) * 100}%`;
       hudBoost.style.display = h.attackBoost ? "inline-block" : "none";
+      weaponPanel.style.display = h.weaponMaxDurability === Infinity ? "none" : "block";
       hudWeaponName.textContent = h.weaponName;
       hudWeaponBar.style.width = h.weaponMaxDurability === Infinity
         ? "100%"
@@ -2060,15 +2146,8 @@ class Game {
       } else {
         bossbar.style.display = "none";
       }
-      if (h.heavyCooldown > 0) {
-        heavyBtn.classList.add("on-cooldown");
-        heavyCd.textContent = h.heavyCooldown.toFixed(1) + "s";
-      } else {
-        heavyBtn.classList.remove("on-cooldown");
-        heavyCd.textContent = "";
-      }
-      healBtn.classList.toggle("on-cooldown", h.rage < SECOND_WIND_COST);
     };
+
 
     game.start();
 
