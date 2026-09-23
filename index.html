@@ -24,20 +24,20 @@
   .hud-top { position:absolute; top:0; left:0; right:0; padding:14px 16px; display:flex; align-items:flex-start;
     justify-content:space-between; pointer-events:none; font-size:8px; letter-spacing:.08em; text-transform:uppercase;
     text-shadow:2px 2px 0 rgba(0,0,0,.95); image-rendering:pixelated; }
-  .vitals { width:min(44vw,330px); display:grid; grid-template-columns:62px minmax(112px,1fr); gap:14px; align-items:start; }
+  .vitals { width:min(44vw,330px); display:grid; grid-template-columns:62px minmax(90px,1fr); gap:6px; align-items:start; }
   .vitals-copy { min-width:0; }
   .vitals-row { display:flex; justify-content:space-between; font-size:7px; letter-spacing:.08em; color:#a49a89; margin:1px 0 12px; text-shadow:2px 2px 0 rgba(0,0,0,.95); }
   .vitals-row span:first-child { color:#c6463f; }
   .blood-drop { width:58px; height:72px; overflow:visible; filter:drop-shadow(3px 3px 0 rgba(0,0,0,.8)); shape-rendering:crispEdges; }
   .blood-drop .blood-level,.blood-drop .blood-surface { transition:y .18s steps(4),height .18s steps(4),cy .18s steps(4); }
   .meter-label { display:flex; justify-content:space-between; margin-top:11px; color:#8f8371; font-size:6px; line-height:1; letter-spacing:.08em; text-shadow:2px 2px 0 rgba(0,0,0,.95); }
-  .meter-label.rage-label { color:#c57b31; }
-  .meter-label.stamina-label { color:#668662; }
-  .bar-rage,.bar-stamina { height:9px; margin-top:4px; border-radius:0; padding:2px; background:#090806; border:2px solid #3d3730; overflow:hidden; box-shadow:2px 2px 0 rgba(0,0,0,.65); }
-  .bar-rage-inner,.bar-stamina-inner { height:100%; border-radius:0; }
-  .bar-rage-inner { background:var(--primary); transition:width .15s ease; }
-  .bar-stamina { height:9px; }
-  .bar-stamina-inner { height:100%; background:var(--accent); transition:width .1s ease; }
+  .pod-bar { width:100%; aspect-ratio:200/18; display:block; margin-top:8px; }
+  .pod-bar:first-of-type { margin-top:0; }
+  .pod-svg { width:100%; height:100%; display:block; overflow:visible; filter:drop-shadow(1.5px 1.5px 0 rgba(0,0,0,.7)); }
+  .pod-fill { transition:width .15s ease; }
+  .pod-surface,.pod-meniscus { transition:width .15s ease,x .15s ease; animation:pod-liquid-bob 2.1s ease-in-out infinite; }
+  @keyframes pod-liquid-bob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(.6px); } }
+  .pod-label { font-family:"Press Start 2P",ui-monospace,monospace; }
   .boost-tag { display:none; margin-top:6px; padding:4px 6px; border:2px solid #6d4d24; border-radius:0; background:#c99a35;
     color:var(--ink); font-weight:700; font-size:6px; letter-spacing:.08em; }
   .floor-label { margin-top:12px; padding-top:6px; border-top:2px solid #302b25; font-size:7px; color:#b8ae9c; letter-spacing:.08em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:2px 2px 0 rgba(0,0,0,.95); }
@@ -49,6 +49,7 @@
   .enemies > div:first-child::before { content:"■ "; color:#9b2727; }
   .enemies .num { color:#d24a43; font-size:17px; font-weight:700; letter-spacing:0; margin-top:6px; }
   .bossbar { position:absolute; top:18px; left:50%; transform:translateX(-50%); width:min(60vw,420px); pointer-events:none; }
+  .bossbar-hp { position:absolute; bottom:22px; left:50%; transform:translateX(-50%); width:min(60vw,420px); pointer-events:none; }
   .bossbar .name { text-align:center; font-size:7px; letter-spacing:.1em; text-transform:uppercase; color:#cfc5b4;
     background:var(--ink); border:2px solid #3d3730; padding:5px 10px; margin:0 auto 4px; width:max-content; max-width:100%; }
   .bar-outer { height:12px; border-radius:0; padding:2px; background:var(--ink); border:2px solid #494039; overflow:hidden; }
@@ -58,8 +59,7 @@
     text-transform:uppercase; color:var(--foreground); background:rgba(13,11,9,.55); border:1px solid var(--border);
     padding:4px 8px; }
   .weapon-panel .wname { min-width:70px; }
-  .bar-durability { width:56px; height:5px; border-radius:2px; background:var(--ink); border:1px solid rgba(0,0,0,.5); overflow:hidden; }
-  .bar-durability-inner { height:100%; background:var(--primary); transition:width .15s ease; }
+  .weapon-tag { font-size:7px; letter-spacing:.12em; color:#d3a94f; text-shadow:2px 2px 0 rgba(0,0,0,.9); margin-bottom:3px; text-transform:uppercase; }
 
 
   .mobile-gamepad, .fullscreen-btn { display:none; }
@@ -110,6 +110,7 @@
     .utility-buttons { display:block; }
     .hud-top { font-size:8px; }
     .vitals { width:min(31vw,220px); }
+    .bossbar-hp { bottom:max(10px,env(safe-area-inset-bottom)); width:50vw; }
   }
 
   @media (pointer:coarse) and (orientation:portrait), (max-width:900px) and (orientation:portrait) {
@@ -117,6 +118,7 @@
     canvas { inset:0 0 auto; height:43%; background:#000; border-bottom:3px solid rgba(255,255,255,.2); }
     .hud-top { height:43%; padding-top:max(8px,env(safe-area-inset-top)); }
     .bossbar { top:12px; width:44vw; }
+    .bossbar-hp { bottom:calc(57% + 10px); width:44vw; }
     .mobile-gamepad { left:0; right:0; top:43%; bottom:0; background:linear-gradient(145deg,#8e16f4,#5d00c6); border-top:1px solid rgba(255,255,255,.28); }
     .mobile-gamepad::before { content:"Bhert Gaming"; position:absolute; top:18px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,.82); font-size:9px; letter-spacing:.2em; white-space:nowrap; }
     .dpad { left:max(22px,env(safe-area-inset-left)); top:27%; transform:scale(1.02); transform-origin:left top; }
@@ -134,8 +136,6 @@
 
   /* Battle-worn controls treatment */
   .weapon-panel { border:1px solid var(--border); border-radius:16px 22px 15px 19px; padding:6px 10px; background:rgba(13,11,9,.62); }
-  .bar-durability { border-radius:999px; }
-  .bar-durability-inner { border-radius:999px; }
   .dpad-btn { border-color:rgba(233,226,209,.3); background:linear-gradient(#4b3b2d,#21170f); color:#e9e2d1; box-shadow:inset 0 2px 0 rgba(255,255,255,.1),0 3px 0 #0d0906; }
   .dpad-btn.held { background:#6d4b34; box-shadow:inset 0 2px 5px rgba(0,0,0,.6),0 1px 0 #0d0906; }
   .dpad-up { border-radius:22px 22px 8px 8px; } .dpad-left { border-radius:22px 8px 8px 22px; }
@@ -164,20 +164,17 @@
     box-shadow:inset 0 0 0 2px var(--pixel-mid),inset 0 0 0 4px var(--pixel-low),4px 4px 0 var(--ink);
     clip-path:polygon(4px 0,calc(100% - 4px) 0,calc(100% - 4px) 2px,100% 2px,100% calc(100% - 4px),calc(100% - 4px) calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,4px calc(100% - 4px),0 calc(100% - 4px),0 4px,4px 4px);
   }
-  .vitals { grid-template-columns:52px minmax(112px,1fr); gap:14px; padding:0; }
+  .vitals { grid-template-columns:52px minmax(90px,1fr); gap:6px; padding:0; }
   .blood-drop { width:48px; height:60px; filter:drop-shadow(2px 0 0 var(--ink)) drop-shadow(-2px 0 0 var(--ink)) drop-shadow(0 2px 0 var(--ink)); }
   .vitals-row,.meter-label,.floor-label,.enemies { letter-spacing:0; }
   .vitals-row { color:var(--foreground); font-size:7px; margin:1px 0 12px; }
   .vitals-row span:first-child { color:#e15a48; }
   .meter-label { font-size:5px; margin-top:11px; }
-  .bar-rage,.bar-stamina,.bar-outer,.bar-durability {
+  .bar-outer {
     position:relative; border:0; border-radius:0; background:var(--ink); padding:2px;
     outline:2px solid var(--pixel-mid); box-shadow:2px 2px 0 var(--ink); overflow:hidden;
   }
-  .bar-rage,.bar-stamina { height:10px; margin-top:4px; }
-  .bar-rage-inner,.bar-stamina-inner,.bar-inner,.bar-durability-inner { border-radius:0; image-rendering:pixelated; }
-  .bar-rage-inner { background:repeating-linear-gradient(90deg,#d68b24 0 6px,#edae35 6px 10px); transition:width .15s steps(6); }
-  .bar-stamina-inner { background:repeating-linear-gradient(90deg,#4f8150 0 6px,#71aa67 6px 10px); transition:width .12s steps(6); }
+  .bar-inner { border-radius:0; image-rendering:pixelated; }
   .floor-label { color:var(--foreground); border-top:2px solid var(--pixel-mid); font-size:6px; line-height:1.5; }
   .floor-label::before { color:var(--primary); }
   .enemies { min-width:88px; color:var(--muted); padding:10px; }
@@ -188,15 +185,12 @@
   .bar-inner { background:repeating-linear-gradient(90deg,#9b2527 0 8px,#c43b32 8px 12px); transition:width .12s steps(8); }
   .weapon-panel { border:0; border-radius:0; color:var(--foreground); background:var(--card); padding:7px 9px; outline:2px solid var(--pixel-mid); box-shadow:3px 3px 0 var(--ink); letter-spacing:0; }
   .weapon-panel { display:block; margin:11px 0 0; padding:0; border:0; outline:0; box-shadow:none; background:transparent; font-size:inherit; letter-spacing:0; text-transform:none; }
-  .weapon-panel .meter-label.durability-label { color:#c8a24d; }
-  .bar-durability { width:100%; height:9px; margin-top:3px; padding:2px; background:#090806; border:2px solid #3d3730; box-shadow:2px 2px 0 rgba(0,0,0,.65); }
-  .bar-durability-inner { height:100%; background:repeating-linear-gradient(90deg,#c28b2c 0 5px,#e0b24d 5px 8px); transition:width .15s steps(6); }
   .boost-tag { border:0; border-radius:0; margin-top:7px; padding:5px 8px; background:#f4c243; color:#181004; font-size:8px; font-weight:700; letter-spacing:.14em; text-align:center; text-shadow:0 1px 0 rgba(255,240,200,.55); outline:2px solid var(--ink); box-shadow:2px 2px 0 #7f5516; }
   .boost-tag::before { content:"\25AE "; color:#7f5516; }
   .boost-tag::after { content:" \25AE"; color:#7f5516; }
   @media (pointer:coarse),(max-width:900px) {
     .hud-top { padding-top:max(10px,env(safe-area-inset-top)); }
-    .vitals { grid-template-columns:42px minmax(100px,1fr); gap:7px; }
+    .vitals { grid-template-columns:42px minmax(80px,1fr); gap:5px; }
     .blood-drop { width:40px; height:50px; }
   }
 
@@ -225,15 +219,77 @@
           <path d="M22 24h6v6h-4v8h-4v12h-4V36h2v-8h4Z" fill="#ffb3a2" opacity=".55"/>
           <path d="M16 58h4v6h8v4h-8v-4h-4Z" fill="#6f101b"/>
         </svg>
+        <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+          <defs>
+            <filter id="pod-sketch" x="-20%" y="-40%" width="140%" height="180%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.05 0.14" numOctaves="2" seed="7" result="n"/>
+              <feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
+            <clipPath id="pod-clip" clipPathUnits="userSpaceOnUse">
+              <path d="M2,9 Q10,2 40,2 L170,2 Q194,2 194,9 Q194,16 170,16 L40,16 Q10,16 2,9 Z"/>
+            </clipPath>
+            <linearGradient id="rage-liquid" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffdd94"/>
+              <stop offset=".4" stop-color="#eeb13f"/>
+              <stop offset="1" stop-color="#8a551a"/>
+            </linearGradient>
+            <linearGradient id="stamina-liquid" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#b6ecac"/>
+              <stop offset=".4" stop-color="#6fb268"/>
+              <stop offset="1" stop-color="#2c5a2e"/>
+            </linearGradient>
+            <linearGradient id="durability-metal" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f8e7b8"/>
+              <stop offset=".3" stop-color="#d9ae52"/>
+              <stop offset=".65" stop-color="#93701f"/>
+              <stop offset="1" stop-color="#4a3712"/>
+            </linearGradient>
+          </defs>
+        </svg>
         <div class="vitals-copy">
-          <div class="vitals-row"><span>Blood</span><span id="hud-hp-text">100/100</span></div>
-          <div class="meter-label rage-label"><span>Rage</span><span>Fury</span></div>
-          <div class="bar-rage"><div class="bar-rage-inner" id="hud-rage-bar" style="width:0%"></div></div>
-          <div class="meter-label stamina-label"><span>Stamina</span><span>Ready</span></div>
-          <div class="bar-stamina"><div class="bar-stamina-inner" id="hud-stamina-bar" style="width:100%"></div></div>
+          <span id="hud-hp-text" style="display:none">100/100</span>
+          <div class="pod-bar">
+            <svg class="pod-svg" viewBox="0 0 200 18" shape-rendering="crispEdges" role="img" aria-label="Rage">
+              <path d="M2,9 Q10,2 40,2 L170,2 Q194,2 194,9 Q194,16 170,16 L40,16 Q10,16 2,9 Z" fill="#090806"/>
+              <rect id="hud-rage-bar" class="pod-fill" x="2" y="2" width="0" height="14" fill="url(#rage-liquid)" clip-path="url(#pod-clip)"/>
+              <rect id="hud-rage-surface" class="pod-surface" x="2" y="2" width="0" height="2.5" fill="#fff2cf" opacity=".55" clip-path="url(#pod-clip)"/>
+              <rect id="hud-rage-meniscus" class="pod-meniscus" x="0" y="2" width="3" height="14" fill="#fff6df" opacity=".6" clip-path="url(#pod-clip)"/>
+              <path class="pod-gloss" d="M6,3 Q60,1 130,4 L120,7 Q60,4 8,6 Z" fill="#ffffff" opacity=".16" clip-path="url(#pod-clip)"/>
+              <path d="M2,9 Q10,2 40,2 L170,2 Q194,2 194,9 Q194,16 170,16 L40,16 Q10,16 2,9 Z" fill="none" stroke="var(--ink)" stroke-width="2.5" filter="url(#pod-sketch)"/>
+              <text class="pod-label" x="98" y="10" text-anchor="middle" dominant-baseline="middle" font-size="7" letter-spacing=".5" fill="#f2ead8" stroke="var(--ink)" stroke-width="1.6" paint-order="stroke fill">RAGE</text>
+            </svg>
+          </div>
+          <div class="pod-bar">
+            <svg class="pod-svg" viewBox="0 0 200 18" shape-rendering="crispEdges" role="img" aria-label="Stamina">
+              <path d="M2,9 Q10,2 40,2 L170,2 Q194,2 194,9 Q194,16 170,16 L40,16 Q10,16 2,9 Z" fill="#090806"/>
+              <rect id="hud-stamina-bar" class="pod-fill" x="2" y="2" width="192" height="14" fill="url(#stamina-liquid)" clip-path="url(#pod-clip)"/>
+              <rect id="hud-stamina-surface" class="pod-surface" x="2" y="2" width="192" height="2.5" fill="#e3ffd8" opacity=".55" clip-path="url(#pod-clip)"/>
+              <rect id="hud-stamina-meniscus" class="pod-meniscus" x="191" y="2" width="3" height="14" fill="#eafce0" opacity=".6" clip-path="url(#pod-clip)"/>
+              <path class="pod-gloss" d="M6,3 Q60,1 130,4 L120,7 Q60,4 8,6 Z" fill="#ffffff" opacity=".16" clip-path="url(#pod-clip)"/>
+              <path d="M2,9 Q10,2 40,2 L170,2 Q194,2 194,9 Q194,16 170,16 L40,16 Q10,16 2,9 Z" fill="none" stroke="var(--ink)" stroke-width="2.5" filter="url(#pod-sketch)"/>
+              <text class="pod-label" x="98" y="10" text-anchor="middle" dominant-baseline="middle" font-size="6" letter-spacing=".5" fill="#f2ead8" stroke="var(--ink)" stroke-width="1.6" paint-order="stroke fill">STAMINA</text>
+            </svg>
+          </div>
           <div class="weapon-panel" id="weapon-panel" style="display:none">
-            <div class="meter-label durability-label"><span id="hud-weapon-name">Fists</span><span>Durability</span></div>
-            <div class="bar-durability"><div class="bar-durability-inner" id="hud-weapon-bar" style="width:100%"></div></div>
+            <div class="weapon-tag"><span id="hud-weapon-name">Fists</span></div>
+            <div class="pod-bar">
+              <svg class="pod-svg" viewBox="0 0 200 18" shape-rendering="crispEdges" role="img" aria-label="Durability">
+                <path d="M2,9 Q10,2 40,2 L170,2 Q194,2 194,9 Q194,16 170,16 L40,16 Q10,16 2,9 Z" fill="#090806"/>
+                <rect id="hud-weapon-bar" class="pod-fill" x="2" y="2" width="192" height="14" fill="url(#durability-metal)" clip-path="url(#pod-clip)"/>
+                <rect id="hud-weapon-surface" class="pod-surface" x="2" y="2" width="192" height="2.5" fill="#fff3d2" opacity=".5" clip-path="url(#pod-clip)"/>
+                <g clip-path="url(#pod-clip)" opacity=".3" stroke="#3a2c14" stroke-width="1">
+                  <line x1="35" y1="2" x2="24" y2="16"/>
+                  <line x1="75" y1="2" x2="62" y2="16"/>
+                  <line x1="115" y1="2" x2="102" y2="16"/>
+                  <line x1="155" y1="2" x2="142" y2="16"/>
+                </g>
+                <circle cx="24" cy="9" r="3" fill="#241a0c" stroke="#8a6c34" stroke-width="1"/>
+                <circle cx="172" cy="9" r="3" fill="#241a0c" stroke="#8a6c34" stroke-width="1"/>
+                <path class="pod-gloss" d="M6,3 Q60,1 130,4 L120,7 Q60,4 8,6 Z" fill="#ffffff" opacity=".18" clip-path="url(#pod-clip)"/>
+                <path d="M2,9 Q10,2 40,2 L170,2 Q194,2 194,9 Q194,16 170,16 L40,16 Q10,16 2,9 Z" fill="none" stroke="var(--ink)" stroke-width="2.5" filter="url(#pod-sketch)"/>
+                <text class="pod-label" x="98" y="10" text-anchor="middle" dominant-baseline="middle" font-size="5.5" letter-spacing=".3" fill="#f4ecd8" stroke="var(--ink)" stroke-width="1.5" paint-order="stroke fill">DURABILITY</text>
+              </svg>
+            </div>
           </div>
           <div class="boost-tag" id="hud-boost">ADRENALINE RUSH</div>
           <div class="floor-label"><span id="hud-floor-name">Floor 1</span> · <span id="hud-floor-sub">Cafeteria &amp; Main Hallways</span></div>
@@ -247,6 +303,8 @@
 
     <div class="bossbar" id="bossbar" style="display:none">
       <div class="name" id="boss-name">—</div>
+    </div>
+    <div class="bossbar-hp" id="bossbar-hp" style="display:none">
       <div class="bar-outer"><div class="bar-inner" id="boss-hp" style="width:100%"></div></div>
     </div>
 
@@ -2115,12 +2173,18 @@ class Game {
     const hudHpBar = document.getElementById("hud-hp-bar");
     const hudHpSurface = document.getElementById("hud-hp-surface");
     const hudRageBar = document.getElementById("hud-rage-bar");
+    const hudRageSurface = document.getElementById("hud-rage-surface");
+    const hudRageMeniscus = document.getElementById("hud-rage-meniscus");
     const hudStaminaBar = document.getElementById("hud-stamina-bar");
+    const hudStaminaSurface = document.getElementById("hud-stamina-surface");
+    const hudStaminaMeniscus = document.getElementById("hud-stamina-meniscus");
     const hudBoost = document.getElementById("hud-boost");
     const hudWeaponName = document.getElementById("hud-weapon-name");
     const hudWeaponBar = document.getElementById("hud-weapon-bar");
+    const hudWeaponSurface = document.getElementById("hud-weapon-surface");
     const weaponPanel = document.getElementById("weapon-panel");
     const bossbar = document.getElementById("bossbar");
+    const bossbarHp = document.getElementById("bossbar-hp");
     const bossName = document.getElementById("boss-name");
     const bossHp = document.getElementById("boss-hp");
 
@@ -2134,20 +2198,30 @@ class Game {
       hudHpBar.setAttribute("y", bloodTop);
       hudHpBar.setAttribute("height", healthRatio * 72);
       hudHpSurface.setAttribute("cy", bloodTop);
-      hudRageBar.style.width = `${h.rage}%`;
-      hudStaminaBar.style.width = `${(h.stamina / h.maxStamina) * 100}%`;
+      const rageWidth = Math.max(0, Math.min(192, (h.rage / 100) * 192));
+      const staminaWidth = Math.max(0, Math.min(192, (h.stamina / h.maxStamina) * 192));
+      hudRageBar.setAttribute("width", rageWidth);
+      hudRageSurface.setAttribute("width", rageWidth);
+      hudRageMeniscus.setAttribute("x", Math.max(0, 2 + rageWidth - 3));
+      hudStaminaBar.setAttribute("width", staminaWidth);
+      hudStaminaSurface.setAttribute("width", staminaWidth);
+      hudStaminaMeniscus.setAttribute("x", Math.max(0, 2 + staminaWidth - 3));
       hudBoost.style.display = h.attackBoost ? "inline-block" : "none";
       weaponPanel.style.display = h.weaponMaxDurability === Infinity ? "none" : "block";
       hudWeaponName.textContent = h.weaponName;
-      hudWeaponBar.style.width = h.weaponMaxDurability === Infinity
-        ? "100%"
-        : `${Math.max(0, (h.weaponDurability / h.weaponMaxDurability) * 100)}%`;
+      const weaponWidth = h.weaponMaxDurability === Infinity
+        ? 192
+        : Math.max(0, Math.min(192, (h.weaponDurability / h.weaponMaxDurability) * 192));
+      hudWeaponBar.setAttribute("width", weaponWidth);
+      hudWeaponSurface.setAttribute("width", weaponWidth);
       if (h.bossName) {
         bossbar.style.display = "block";
+        bossbarHp.style.display = "block";
         bossName.textContent = h.bossName;
         bossHp.style.width = `${(h.bossHp / h.bossMaxHp) * 100}%`;
       } else {
         bossbar.style.display = "none";
+        bossbarHp.style.display = "none";
       }
     };
 
