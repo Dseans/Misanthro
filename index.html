@@ -748,6 +748,7 @@ class Game {
     this.flash = 0;
     this.time = 0;
     this.acc = 0;
+    this.oneHitMode = false;
     this.last = 0;
     this.raf = 0;
     this.running = false;
@@ -1032,7 +1033,7 @@ class Game {
     const p = this.player;
     reach = reach ?? (heavy ? 40 : 30);
     const boostMult = p.attackBoost > 0 ? ATTACK_BOOST_MULT : 1;
-    const dealt = damage * boostMult;
+    const dealt = this.oneHitMode ? 99999 : damage * boostMult;
     const cx = p.x + p.facing * reach * 0.6;
     const knuckles = p.weapon === "knuckles";
 
@@ -2150,6 +2151,20 @@ class Game {
 
 
     game.start();
+
+    // ---- debug cheat: type `onehitmode` in the browser console and hit enter ----
+    // (a leading "/" isn't valid JS in the console, so the bare word toggles it instead)
+    Object.defineProperty(window, "onehitmode", {
+      configurable: true,
+      get() {
+        game.oneHitMode = !game.oneHitMode;
+        const msg = game.oneHitMode
+          ? "[CHEAT] One-hit mode ENABLED — punches now one-shot enemies. Type onehitmode again to turn it off."
+          : "[CHEAT] One-hit mode disabled.";
+        console.log(msg);
+        return msg;
+      },
+    });
 
     // ---- fullscreen ----
     const fullscreenBtn = document.getElementById("fullscreen-btn");
