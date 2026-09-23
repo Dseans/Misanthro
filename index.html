@@ -749,6 +749,7 @@ class Game {
     this.time = 0;
     this.acc = 0;
     this.oneHitMode = false;
+    this.godMode = false;
     this.last = 0;
     this.raf = 0;
     this.running = false;
@@ -1245,6 +1246,7 @@ class Game {
 
   hitPlayer(damage, dir, source) {
     const p = this.player;
+    if (this.godMode) return;
     if (p.invuln > 0 || p.state === "dead") return;
     const facingAttack = p.facing === -Math.sign(dir);
     if (p.state === "block" && facingAttack) {
@@ -2161,6 +2163,19 @@ class Game {
         const msg = game.oneHitMode
           ? "[CHEAT] One-hit mode ENABLED — punches now one-shot enemies. Type onehitmode again to turn it off."
           : "[CHEAT] One-hit mode disabled.";
+        console.log(msg);
+        return msg;
+      },
+    });
+
+    // ---- debug cheat: type `godmode` in the browser console and hit enter ----
+    Object.defineProperty(window, "godmode", {
+      configurable: true,
+      get() {
+        game.godMode = !game.godMode;
+        const msg = game.godMode
+          ? "[CHEAT] God mode ENABLED — you take no damage. Type godmode again to turn it off."
+          : "[CHEAT] God mode disabled.";
         console.log(msg);
         return msg;
       },
